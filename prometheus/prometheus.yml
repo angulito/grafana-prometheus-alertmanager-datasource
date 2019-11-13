@@ -1,0 +1,11 @@
+# my global config
+global:
+  scrape_interval:     10s
+  evaluation_interval: 30s
+
+alerting:
+  alertmanagers:
+  - scheme: http
+    static_configs:
+    - targets:
+      - 'alertmanager:9093'

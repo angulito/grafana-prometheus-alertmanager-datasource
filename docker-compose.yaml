@@ -1,0 +1,42 @@
+version: "3.1"
+
+volumes:
+  grafana_data: {}
+  prometheus_data: {}
+  alertmanager_data: {}
+
+services:
+
+  prometheus:
+    image: prom/prometheus:v2.12.0
+    volumes:
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    ports:
+      - 9090:9090
+    links:
+      - alertmanager:alertmanager
+    restart: always
+
+  alertmanager:
+    image: prom/alertmanager:v0.18.0
+    ports:
+      - 9093:9093
+    volumes:
+      - alertmanager_data:/alertmanager
+    restart: always
+
+  grafana:
+    image: grafana/grafana:6.2.5
+    depends_on:
+      - prometheus
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./dist:/var/lib/grafana/plugins/camptocamp-prometheus-alertmanager-datasource
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    restart: always
